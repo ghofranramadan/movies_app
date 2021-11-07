@@ -142,13 +142,14 @@ class MovieDetails extends StatelessWidget {
                                               physics:
                                                   const NeverScrollableScrollPhysics(),
                                               itemBuilder: (context, index) =>
-                                                  Text(
-                                                    movieDetails
-                                                        .genres[index].name,
-                                                    maxLines: 1,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline4,
+                                                  FittedBox(
+                                                    child: Text(
+                                                      movieDetails
+                                                          .genres[index].name,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .headline4,
+                                                    ),
                                                   ),
                                               separatorBuilder:
                                                   (context, index) => Text(
@@ -157,8 +158,7 @@ class MovieDetails extends StatelessWidget {
                                                             .textTheme
                                                             .headline4,
                                                       ),
-                                              itemCount:
-                                                  movieDetails.genres.length),
+                                              itemCount: 3),
                                         ),
                                         movieDetails.spokenLanguages.isNotEmpty
                                             ? Text(

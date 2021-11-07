@@ -51,11 +51,14 @@ class _HomeScreenState extends State<HomeScreen>
     return dummyList;
   }
 
-  Future<void> checkInternetConnection() async {
+  Future<void> checkInternetConnection(String type) async {
+    String localType = type;
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        displayData();
+        if (type == 'TopMovies') displayTopMovies();
+        if (type == 'Popular') displayPopularMovies();
+        if (type == 'NowPlaying') displayNowPlayingMovies();
       }
     } on SocketException catch (_) {
       await AwesomeDialog(
@@ -82,27 +85,35 @@ class _HomeScreenState extends State<HomeScreen>
         btnOkText: "Try Again",
         btnCancelOnPress: () {},
         btnOkOnPress: () {
-          checkInternetConnection();
+          checkInternetConnection(localType);
         },
       ).show();
     }
   }
 
-  void displayData() {
+  void displayTopMovies() {
     BlocProvider.of<TopMoviesBloc>(context).add(FetchTopRatedMovies(
       noOfPage: 1,
     ));
+  }
+
+  void displayPopularMovies() {
+    BlocProvider.of<PopularMoviesBloc>(context)
+        .add(FetchPopularMovies(noOfPage: 1));
+  }
+
+  void displayNowPlayingMovies() {
+    BlocProvider.of<NowPlayingMoviesBloc>(context)
+        .add(FetchNowPlayingMovies(noOfPage: 1));
   }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    displayData();
-    BlocProvider.of<PopularMoviesBloc>(context)
-        .add(FetchPopularMovies(noOfPage: 1));
-    BlocProvider.of<NowPlayingMoviesBloc>(context)
-        .add(FetchNowPlayingMovies(noOfPage: 1));
+    displayTopMovies();
+    displayPopularMovies();
+    displayNowPlayingMovies();
   }
 
   @override
@@ -145,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen>
                       } else if (state is TopRatedSuccessState) {
                         List<MovieModel> topMovies = state.movies;
                         return RefreshIndicator(
-                          onRefresh: () => checkInternetConnection(),
+                          onRefresh: () => checkInternetConnection('TopMovies'),
                           child: Pagination<MovieModel>(
                             pageBuilder: (currentSize) =>
                                 pageData(currentSize, topMovies),
@@ -181,105 +192,216 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                         );
                       } else if (state is TopRatedErrorState) {
-                        return RefreshIndicator(
-                            onRefresh: () => checkInternetConnection(),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Center(
-                                    child: Text(
-                                  'Error',
-                                  style: Theme.of(context).textTheme.headline5,
-                                )),
-                                InkWell(
-                                  onTap: () => checkInternetConnection(),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(6),
-                                        color:
-                                            Theme.of(context).highlightColor),
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 3, vertical: 3),
-                                    child: Text(
-                                      "Try Again",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline2!
-                                          .copyWith(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                  ),
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(
+                                child: Text(
+                              'Error',
+                              style: Theme.of(context).textTheme.headline5,
+                            )),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            InkWell(
+                              onTap: () => checkInternetConnection('TopRated'),
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: 100,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: Theme.of(context).highlightColor),
+                                child: Text(
+                                  "Try Again",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline2!
+                                      .copyWith(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                 ),
-                              ],
-                            ));
+                              ),
+                            ),
+                          ],
+                        );
                       } else {
                         return const Center(child: Text("Error"));
                       }
                     },
                   ),
-
-                  // BlocConsumer<PopularMoviesBloc, PopularMoviesState>(
-                  //   listener: (context, state) {},
-                  //   builder: (context, state) {
-                  //     if (state is PopularMoviesLoadingState) {
-                  //       return const Center(child: CircularProgressIndicator());
-                  //     } else if (state is PopularMoviesSuccessState) {
-                  //       List<MovieModel> popularMovies = state.popularMovies;
-                  //       return Pagination<MovieModel>(
-                  //         pageBuilder: (currentSize) =>
-                  //             pageData(currentSize, popularMovies),
-                  //         itemBuilder: (index, item) {
-                  //           return Padding(
-                  //             padding: const EdgeInsets.symmetric(
-                  //                 horizontal: 10, vertical: 10),
-                  //             child: MovieWidget(
-                  //               onTap: () {},
-                  //               image: item.posterPath,
-                  //               title: item.title,
-                  //               overview: item.overview,
-                  //             ),
-                  //           );
-                  //         },
-                  //       );
-                  //     } else {
-                  //       return const Center(child: Text("Error"));
-                  //     }
-                  //   },
-                  // ),
-                  // BlocConsumer<NowPlayingMoviesBloc, NowPlayingMoviesState>(
-                  //   listener: (context, state) {},
-                  //   builder: (context, state) {
-                  //     if (state is NowPlayingMoviesLoadingState) {
-                  //       return const Center(child: CircularProgressIndicator());
-                  //     } else if (state is NowPlayingMoviesSuccessState) {
-                  //       List<MovieModel> nowPlayingMovies =
-                  //           state.nowPlayingMovies;
-                  //       return Pagination<MovieModel>(
-                  //         pageBuilder: (currentSize) =>
-                  //             pageData(currentSize, nowPlayingMovies),
-                  //         itemBuilder: (index, item) {
-                  //           return Padding(
-                  //             padding: const EdgeInsets.symmetric(
-                  //                 horizontal: 10, vertical: 10),
-                  //             child: MovieWidget(
-                  //               onTap: () {},
-                  //               image: item.posterPath,
-                  //               title: item.title,
-                  //               overview: item.overview,
-                  //             ),
-                  //           );
-                  //         },
-                  //       );
-                  //     } else {
-                  //       return const Center(child: Text("Error"));
-                  //     }
-                  //   },
-                  // ),
-                  //
-                  const Center(child: Text('data1')),
-                  const Center(child: Text('data2')),
+                  //////////////////////////////////////////////////////
+                  BlocConsumer<PopularMoviesBloc, PopularMoviesState>(
+                    listener: (context, state) {},
+                    builder: (context, state) {
+                      if (state is PopularMoviesLoadingState) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is PopularMoviesSuccessState) {
+                        List<MovieModel> popularMovies = state.popularMovies;
+                        return RefreshIndicator(
+                          onRefresh: () => checkInternetConnection('Popular'),
+                          child: Pagination<MovieModel>(
+                            pageBuilder: (currentSize) =>
+                                pageData(currentSize, popularMovies),
+                            itemBuilder: (index, item) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                child: InkWell(
+                                  onTap: () {
+                                    BlocProvider.of<MovieDetailsBloc>(context)
+                                        .add(FetchMovieDetails(
+                                            movieId: item.id));
+                                    WidgetsBinding.instance!
+                                        .addPostFrameCallback((_) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return MovieDetails();
+                                          },
+                                        ),
+                                      );
+                                    });
+                                  },
+                                  child: MovieWidget(
+                                    image: item.posterPath,
+                                    title: item.title,
+                                    overview: item.overview,
+                                    releaseDate: item.releaseDate,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      } else if (state is PopularMoviesErrorState) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(
+                                child: Text(
+                              'Error',
+                              style: Theme.of(context).textTheme.headline5,
+                            )),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            InkWell(
+                              onTap: () => checkInternetConnection('Popular'),
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: 100,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: Theme.of(context).highlightColor),
+                                child: Text(
+                                  "Try Again",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline2!
+                                      .copyWith(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const Center(child: Text("Error"));
+                      }
+                    },
+                  ),
+                  /////////////////////////////////////////////////////
+                  BlocConsumer<NowPlayingMoviesBloc, NowPlayingMoviesState>(
+                    listener: (context, state) {},
+                    builder: (context, state) {
+                      if (state is NowPlayingMoviesLoadingState) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is NowPlayingMoviesSuccessState) {
+                        List<MovieModel> nowPlayingMovies =
+                            state.nowPlayingMovies;
+                        return RefreshIndicator(
+                          onRefresh: () =>
+                              checkInternetConnection('NowPlaying'),
+                          child: Pagination<MovieModel>(
+                            pageBuilder: (currentSize) =>
+                                pageData(currentSize, nowPlayingMovies),
+                            itemBuilder: (index, item) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                child: InkWell(
+                                  onTap: () {
+                                    BlocProvider.of<MovieDetailsBloc>(context)
+                                        .add(FetchMovieDetails(
+                                            movieId: item.id));
+                                    WidgetsBinding.instance!
+                                        .addPostFrameCallback((_) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return MovieDetails();
+                                          },
+                                        ),
+                                      );
+                                    });
+                                  },
+                                  child: MovieWidget(
+                                    image: item.posterPath,
+                                    title: item.title,
+                                    overview: item.overview,
+                                    releaseDate: item.releaseDate,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      } else if (state is NowPlayingMoviesErrorState) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(
+                                child: Text(
+                              'Error',
+                              style: Theme.of(context).textTheme.headline5,
+                            )),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            InkWell(
+                              onTap: () =>
+                                  checkInternetConnection('NowPlaying'),
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: 100,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: Theme.of(context).highlightColor),
+                                child: Text(
+                                  "Try Again",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline2!
+                                      .copyWith(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const Center(child: Text("Error"));
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
