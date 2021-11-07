@@ -61,7 +61,7 @@ class MovieModel {
     // adult = json["adult"];
     // backdropPath = json["backdrop_path"];
     // json['genre_ids'].forEach((element) => genreIds.add(element));
-    // id = json["id"];
+    id = json["id"];
     // originalLanguage = json["original_language"];
     // originalTitle = json["original_title"];
     overview = json["overview"];

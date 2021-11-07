@@ -41,7 +41,7 @@ class TopMoviesBloc extends Bloc<TopMoviesEvent, TopMoniesState> {
         );
 
         totalPages = movieListModel.totalPages;
-
+        topMovies = [];
         movieListModel.movies.forEach((e) {
           topMovies.add(e);
         });

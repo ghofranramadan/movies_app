@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movie_details_bloc/movie_details_bloc.dart';
@@ -8,7 +10,6 @@ import 'package:movies_app/bloc/popular_movies_bloc/popular_movies_bloc.dart';
 import 'package:movies_app/bloc/top_movies_bloc/top_movies_bloc.dart';
 import 'package:movies_app/model/movie_model.dart';
 import 'package:movies_app/screens/movie_details.dart';
-import 'package:movies_app/widgets/error_layout.dart';
 import 'package:movies_app/widgets/movie_widget.dart';
 import 'package:paging/paging.dart';
 
@@ -31,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen>
     await Future.delayed(const Duration(seconds: 0, milliseconds: 2500));
 
     List<MovieModel> dummyList = <MovieModel>[];
-    //////////////////////////////////////////////////
     if (previousCount < moviesModel.length) {
       for (int i = previousCount; i < previousCount + _count; i++) {
         dummyList.add(moviesModel[i]);
@@ -47,36 +47,44 @@ class _HomeScreenState extends State<HomeScreen>
     //     dummyList.add(moviesModel[i]);
     //   }
     // }
-
+    /////////////////////////////////////////////////////
     return dummyList;
   }
-//////////////////////////////////////////////////////////////////////////////
 
   Future<void> checkInternetConnection() async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         displayData();
-        print('coNNNNNNNNNNNNNNNNNNNNNNNNNNNected');
       }
     } on SocketException catch (_) {
-      showDialog(
+      await AwesomeDialog(
         context: context,
-        builder: (BuildContext context) => WillPopScope(
-          onWillPop: () async => false,
-          child: ErrorPopUp(
-            title: 'No Connection',
-            message: 'Please check internet connection and try again',
-            onTap: () {
-              WidgetsBinding.instance!.addPostFrameCallback((_) {
-                Navigator.of(context).pop();
-              });
-              // displayData();
-            },
-          ),
+        animType: AnimType.SCALE,
+        dialogType: DialogType.ERROR,
+        body: Column(
+          children: [
+            Text('No Connection',
+                style: Theme.of(context)
+                    .textTheme
+                    .caption!
+                    .copyWith(fontWeight: FontWeight.w500, fontSize: 25)),
+            const SizedBox(height: 24.0),
+            Text(
+              'Please check internet connection and try again',
+              style: Theme.of(context)
+                  .textTheme
+                  .caption!
+                  .copyWith(fontWeight: FontWeight.w500, fontSize: 14),
+            ),
+          ],
         ),
-      );
-      print('nOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOt connected');
+        btnOkText: "Try Again",
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          checkInternetConnection();
+        },
+      ).show();
     }
   }
 
@@ -150,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen>
                                     BlocProvider.of<MovieDetailsBloc>(context)
                                         .add(FetchMovieDetails(
                                             movieId: item.id));
-
                                     WidgetsBinding.instance!
                                         .addPostFrameCallback((_) {
                                       Navigator.of(context).push(
@@ -173,10 +180,42 @@ class _HomeScreenState extends State<HomeScreen>
                             },
                           ),
                         );
-                      } else {
+                      } else if (state is TopRatedErrorState) {
                         return RefreshIndicator(
                             onRefresh: () => checkInternetConnection(),
-                            child: const Center(child: Text("Error")));
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                    child: Text(
+                                  'Error',
+                                  style: Theme.of(context).textTheme.headline5,
+                                )),
+                                InkWell(
+                                  onTap: () => checkInternetConnection(),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(6),
+                                        color:
+                                            Theme.of(context).highlightColor),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 3, vertical: 3),
+                                    child: Text(
+                                      "Try Again",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline2!
+                                          .copyWith(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ));
+                      } else {
+                        return const Center(child: Text("Error"));
                       }
                     },
                   ),

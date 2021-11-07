@@ -58,16 +58,14 @@ class MovieWidget extends StatelessWidget {
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ),
-                  // const Spacer(),
                   Text(
                     overview,
                     style: Theme.of(context).textTheme.headline1,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-
                   Text(
-                    releaseDate,
+                    releaseDate.split("").reversed.join(""),
                     style: Theme.of(context).textTheme.headline5,
                     maxLines: 1,
                     textDirection: TextDirection.rtl,

@@ -41,7 +41,7 @@ class NowPlayingMoviesBloc
         );
 
         totalPages = movieListModel.totalPages;
-
+        nowPlayingMovies = [];
         movieListModel.movies.forEach((e) {
           nowPlayingMovies.add(e);
         });

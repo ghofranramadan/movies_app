@@ -108,7 +108,10 @@ class MovieDetails extends StatelessWidget {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        movieDetails.releaseDate,
+                                        movieDetails.releaseDate
+                                            .split("")
+                                            .reversed
+                                            .join(""),
                                         maxLines: 1,
                                         style: Theme.of(context)
                                             .textTheme

@@ -39,7 +39,7 @@ class PopularMoviesBloc extends Bloc<PopularMoviesEvent, PopularMoviesState> {
         );
 
         totalPages = movieListModel.totalPages;
-
+        popularMovies = [];
         movieListModel.movies.forEach((e) {
           popularMovies.add(e);
         });
