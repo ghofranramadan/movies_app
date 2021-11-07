@@ -47,11 +47,13 @@ class NowPlayingMoviesBloc
         });
         yield NowPlayingMoviesSuccessState(nowPlayingMovies: nowPlayingMovies);
       } else {
-        yield NowPlayingMoviesErrorState();
+        throw response.data;
       }
     } catch (e) {
       print("Error ==> $e");
-      yield NowPlayingMoviesErrorState();
+      yield NowPlayingMoviesErrorState(
+        error: e.toString(),
+      );
     }
   }
 }

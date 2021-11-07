@@ -45,11 +45,13 @@ class PopularMoviesBloc extends Bloc<PopularMoviesEvent, PopularMoviesState> {
         });
         yield PopularMoviesSuccessState(popularMovies: popularMovies);
       } else {
-        yield PopularMoviesErrorState();
+        throw response.data;
       }
     } catch (e) {
       print("Error ==> $e");
-      yield PopularMoviesErrorState();
+      yield PopularMoviesErrorState(
+        error: e.toString(),
+      );
     }
   }
 }

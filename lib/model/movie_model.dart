@@ -23,54 +23,54 @@ class MovieListModel {
 }
 
 class MovieModel {
-  late bool adult;
-  late String backdropPath;
-  late List<int> genreIds = <int>[];
+  // late bool adult;
+  // late String backdropPath;
+  // late List<int> genreIds = <int>[];
   late int id;
-  late String originalLanguage;
-  late String originalTitle;
+  // late String originalLanguage;
+  // late String originalTitle;
   late String overview;
-  late double popularity;
+  // late double popularity;
   late String posterPath;
   late String releaseDate;
   late String title;
-  late bool video;
+  // late bool video;
   // late double voteAverage;
-  late int voteCount;
+  // late int voteCount;
 
   MovieModel({
-    required this.adult,
-    required this.backdropPath,
-    required this.genreIds,
+    // required this.adult,
+    // required this.backdropPath,
+    // required this.genreIds,
     required this.id,
-    required this.originalLanguage,
-    required this.originalTitle,
+    // required this.originalLanguage,
+    // required this.originalTitle,
     required this.overview,
-    required this.popularity,
+    // required this.popularity,
     required this.posterPath,
     required this.releaseDate,
     required this.title,
-    required this.video,
+    // required this.video,
     // required this.voteAverage,
-    required this.voteCount,
+    // required this.voteCount,
   });
 
   MovieModel.fromJson(
     Map<String, dynamic> json,
   ) {
-    adult = json["adult"];
-    backdropPath = json["backdrop_path"];
-    json['genre_ids'].forEach((element) => genreIds.add(element));
-    id = json["id"];
-    originalLanguage = json["original_language"];
-    originalTitle = json["original_title"];
+    // adult = json["adult"];
+    // backdropPath = json["backdrop_path"];
+    // json['genre_ids'].forEach((element) => genreIds.add(element));
+    // id = json["id"];
+    // originalLanguage = json["original_language"];
+    // originalTitle = json["original_title"];
     overview = json["overview"];
-    popularity = json["popularity"];
+    // popularity = json["popularity"];
     posterPath = json["poster_path"];
     releaseDate = json["release_date"];
     title = json["title"];
-    video = json["video"];
+    // video = json["video"];
     // voteAverage = json["vote_average"];
-    voteCount = json["vote_count"];
+    // voteCount = json["vote_count"];
   }
 }

@@ -12,4 +12,8 @@ class NowPlayingMoviesSuccessState extends NowPlayingMoviesState {
   NowPlayingMoviesSuccessState({required this.nowPlayingMovies});
 }
 
-class NowPlayingMoviesErrorState extends NowPlayingMoviesState {}
+class NowPlayingMoviesErrorState extends NowPlayingMoviesState {
+  final String error;
+
+  NowPlayingMoviesErrorState({required this.error});
+}

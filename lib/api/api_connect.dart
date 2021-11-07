@@ -29,7 +29,7 @@ class ApiProvider {
 
   static Future<Response> getApiData({
     required String url,
-    required var noOfPage,
+    var noOfPage,
   }) async {
     return await dio.get(
       url,

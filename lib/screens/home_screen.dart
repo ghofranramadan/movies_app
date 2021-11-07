@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:movies_app/bloc/movie_details_bloc/movie_details_bloc.dart';
 import 'package:movies_app/bloc/now_playing_bloc/now_playing_movies_bloc.dart';
 import 'package:movies_app/bloc/popular_movies_bloc/popular_movies_bloc.dart';
 import 'package:movies_app/bloc/top_movies_bloc/top_movies_bloc.dart';
 import 'package:movies_app/model/movie_model.dart';
+import 'package:movies_app/screens/movie_details.dart';
+import 'package:movies_app/widgets/error_layout.dart';
 import 'package:movies_app/widgets/movie_widget.dart';
 import 'package:paging/paging.dart';
 
@@ -48,36 +52,49 @@ class _HomeScreenState extends State<HomeScreen>
   }
 //////////////////////////////////////////////////////////////////////////////
 
-  final _pagingController = PagingController<int, MovieModel>(
-    // 2
-    firstPageKey: 1,
-  );
+  Future<void> checkInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        displayData();
+        print('coNNNNNNNNNNNNNNNNNNNNNNNNNNNected');
+      }
+    } on SocketException catch (_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => WillPopScope(
+          onWillPop: () async => false,
+          child: ErrorPopUp(
+            title: 'No Connection',
+            message: 'Please check internet connection and try again',
+            onTap: () {
+              WidgetsBinding.instance!.addPostFrameCallback((_) {
+                Navigator.of(context).pop();
+              });
+              // displayData();
+            },
+          ),
+        ),
+      );
+      print('nOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOt connected');
+    }
+  }
+
+  void displayData() {
+    BlocProvider.of<TopMoviesBloc>(context).add(FetchTopRatedMovies(
+      noOfPage: 1,
+    ));
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-
-    _pagingController.addPageRequestListener((pageKey) {
-      BlocProvider.of<TopMoviesBloc>(context).add(FetchTopRatedMovies(
-        // noOfPage: 1,
-        noOfPage: pageKey,
-      ));
-    });
-
-    BlocProvider.of<TopMoviesBloc>(context).add(FetchTopRatedMovies(
-      noOfPage: 1,
-    ));
+    displayData();
     BlocProvider.of<PopularMoviesBloc>(context)
         .add(FetchPopularMovies(noOfPage: 1));
     BlocProvider.of<NowPlayingMoviesBloc>(context)
         .add(FetchNowPlayingMovies(noOfPage: 1));
-  }
-
-  @override
-  void dispose() {
-    // 4
-    _pagingController.dispose();
-    super.dispose();
   }
 
   @override
@@ -119,42 +136,47 @@ class _HomeScreenState extends State<HomeScreen>
                         return const Center(child: CircularProgressIndicator());
                       } else if (state is TopRatedSuccessState) {
                         List<MovieModel> topMovies = state.movies;
-                        return
-                            //   PagedListView<int, MovieModel>(
-                            //   pagingController: _pagingController,
-                            //   builderDelegate:
-                            //       PagedChildBuilderDelegate<MovieModel>(
-                            //           itemBuilder: (context, item, index) {
-                            //     return Padding(
-                            //       padding: const EdgeInsets.symmetric(
-                            //           horizontal: 10, vertical: 10),
-                            //       child: MovieWidget(
-                            //         onTap: () {},
-                            //         image: item.posterPath,
-                            //         title: item.title,
-                            //         overview: item.overview,
-                            //       ),
-                            //     );
-                            //   }),
-                            // );
-                            Pagination<MovieModel>(
-                          pageBuilder: (currentSize) =>
-                              pageData(currentSize, topMovies),
-                          itemBuilder: (index, item) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              child: MovieWidget(
-                                onTap: () {},
-                                image: item.posterPath,
-                                title: item.title,
-                                overview: item.overview,
-                              ),
-                            );
-                          },
+                        return RefreshIndicator(
+                          onRefresh: () => checkInternetConnection(),
+                          child: Pagination<MovieModel>(
+                            pageBuilder: (currentSize) =>
+                                pageData(currentSize, topMovies),
+                            itemBuilder: (index, item) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                child: InkWell(
+                                  onTap: () {
+                                    BlocProvider.of<MovieDetailsBloc>(context)
+                                        .add(FetchMovieDetails(
+                                            movieId: item.id));
+
+                                    WidgetsBinding.instance!
+                                        .addPostFrameCallback((_) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return MovieDetails();
+                                          },
+                                        ),
+                                      );
+                                    });
+                                  },
+                                  child: MovieWidget(
+                                    image: item.posterPath,
+                                    title: item.title,
+                                    overview: item.overview,
+                                    releaseDate: item.releaseDate,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       } else {
-                        return const Center(child: Text("Error"));
+                        return RefreshIndicator(
+                            onRefresh: () => checkInternetConnection(),
+                            child: const Center(child: Text("Error")));
                       }
                     },
                   ),

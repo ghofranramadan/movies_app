@@ -31,6 +31,11 @@ class MoviesAppTheme {
         fontWeight: FontWeight.w700,
         fontSize: 18,
       ),
+      headline5: TextStyle(
+        color: Colors.grey[800],
+        fontWeight: FontWeight.w700,
+        fontSize: 18,
+      ),
     ),
   );
   final ThemeData darkTheme = ThemeData(

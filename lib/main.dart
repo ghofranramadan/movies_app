@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/api/api_connect.dart';
+import 'package:movies_app/bloc/movie_details_bloc/movie_details_bloc.dart';
 import 'package:movies_app/bloc/popular_movies_bloc/popular_movies_bloc.dart';
 import 'package:movies_app/screens/home_screen.dart';
 import 'package:movies_app/utils/theme.dart';
@@ -28,6 +29,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<NowPlayingMoviesBloc>(
           create: (context) => NowPlayingMoviesBloc(),
+        ),
+        BlocProvider<MovieDetailsBloc>(
+          create: (context) => MovieDetailsBloc(),
         ),
       ],
       child: MaterialApp(

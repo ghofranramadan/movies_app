@@ -13,4 +13,8 @@ class TopRatedSuccessState extends TopMoniesState {
   TopRatedSuccessState({required this.movies});
 }
 
-class TopRatedErrorState extends TopMoniesState {}
+class TopRatedErrorState extends TopMoniesState {
+  final String error;
+
+  TopRatedErrorState({required this.error});
+}

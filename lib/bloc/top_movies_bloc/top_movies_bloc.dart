@@ -47,11 +47,13 @@ class TopMoviesBloc extends Bloc<TopMoviesEvent, TopMoniesState> {
         });
         yield TopRatedSuccessState(movies: topMovies);
       } else {
-        yield TopRatedErrorState();
+        throw response.data;
       }
     } catch (e) {
       print("Error ==> $e");
-      yield TopRatedErrorState();
+      yield TopRatedErrorState(
+        error: e.toString(),
+      );
     }
   }
 
